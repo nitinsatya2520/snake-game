@@ -264,29 +264,37 @@ h1 {
 /* Controls Panel */
 .controls-panel {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     margin-top: 20px;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .control-button {
     background-color: var(--button-bg);
+    background-image: linear-gradient(145deg, #ff8a8a, #f44336);
     color: var(--button-text-color);
-    padding: 10px 20px;
-    font-size: 1.2rem;
-    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 1.4rem;
+    border-radius: 50%;
     border: none;
     cursor: pointer;
     transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .control-button:hover {
-    background-color: var(--button-bg-hover);
+    background-image: linear-gradient(145deg, #e57373, #e53935);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
     transform: translateY(-2px);
 }
 
 .control-button:active {
-    background-color: #c44;
+    background-image: linear-gradient(145deg, #d32f2f, #b71c1c);
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
     transform: translateY(1px);
 }
@@ -323,5 +331,7 @@ h1 {
     .control-button {
         font-size: 0.9rem;
         padding: 6px 12px;
+        width: 50px;
+        height: 50px;
     }
 }
