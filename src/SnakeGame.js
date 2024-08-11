@@ -22,6 +22,8 @@ const SnakeGame = () => {
 
     const bigFoodTimer = useRef(null);
     const bigFoodTimeout = useRef(null);
+    const touchStartX = useRef(null);
+    const touchStartY = useRef(null);
 
     const enableSounds = () => {
         setSoundsEnabled(true);
@@ -181,8 +183,44 @@ const SnakeGame = () => {
         }
     };
 
+    const handleTouchStart = (e) => {
+        const touch = e.touches[0];
+        touchStartX.current = touch.clientX;
+        touchStartY.current = touch.clientY;
+    };
+
+    const handleTouchMove = (e) => {
+        if (!touchStartX.current || !touchStartY.current) {
+            return;
+        }
+
+        const touch = e.touches[0];
+        const deltaX = touchStartX.current - touch.clientX;
+        const deltaY = touchStartY.current - touch.clientY;
+
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            if (deltaX > 0 && direction !== 'RIGHT') {
+                setDirection('LEFT');
+            } else if (deltaX < 0 && direction !== 'LEFT') {
+                setDirection('RIGHT');
+            }
+        } else {
+            if (deltaY > 0 && direction !== 'DOWN') {
+                setDirection('UP');
+            } else if (deltaY < 0 && direction !== 'UP') {
+                setDirection('DOWN');
+            }
+        }
+
+        touchStartX.current = null;
+        touchStartY.current = null;
+    };
+
     useEffect(() => {
         document.addEventListener('keydown', changeDirection);
+        document.addEventListener('touchstart', handleTouchStart);
+        document.addEventListener('touchmove', handleTouchMove);
+        
         const gameInterval = setInterval(() => {
             if (gameStarted && !gameOver && !isPaused) moveSnake();
         }, speed);
@@ -190,6 +228,8 @@ const SnakeGame = () => {
         return () => {
             clearInterval(gameInterval);
             document.removeEventListener('keydown', changeDirection);
+            document.removeEventListener('touchstart', handleTouchStart);
+            document.removeEventListener('touchmove', handleTouchMove);
             clearTimeout(bigFoodTimer.current);
             clearInterval(bigFoodTimeout.current);
         };
@@ -216,56 +256,49 @@ const SnakeGame = () => {
     };
 
     return (
-        <div className={`snake-game ${theme}`} onClick={enableSounds}>
-            <h1>Snake Game</h1>
-            {!gameStarted ? (
-                <div className="start-screen">
-                    <button onClick={startGame} className="start-button">Start Game</button>
+        <div className={`snake-game ${theme}`}>
+            <div className="score-panel">
+                <h2>Score: {score}</h2>
+                <h2>High Score: {highScore}</h2>
+                <button className="control-button" onClick={togglePause}>
+                    {isPaused ? 'Resume' : 'Pause'}
+                </button>
+                <button className="control-button" onClick={resetGame}>
+                    Restart
+                </button>
+            </div>
+            <div className="game-area">
+                {snake.map((part, index) => (
+                    <div key={index} className="snake-part" style={{ left: `${part.x * 20}px`, top: `${part.y * 20}px` }}></div>
+                ))}
+                <div className="food" style={{ left: `${food.x * 20}px`, top: `${food.y * 20}px` }}></div>
+                {bigFood && <div className="big-food" style={{ left: `${bigFood.x * 20}px`, top: `${bigFood.y * 20}px` }}></div>}
+                {gameOver && <div className="game-over">Game Over</div>}
+                {!gameStarted && <button className="start-button" onClick={startGame}>Start Game</button>}
+            </div>
+            <div className="settings-panel">
+                <div>
+                    <label htmlFor="difficulty">Difficulty:</label>
+                    <select id="difficulty" name="difficulty" value={difficulty} onChange={handleSettingsChange}>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
                 </div>
-            ) : (
-                <>
-                    <div className="settings">
-                        <label>
-                            Difficulty:
-                            <select name="difficulty" value={difficulty} onChange={handleSettingsChange}>
-                                <option value="easy">Easy</option>
-                                <option value="medium">Medium</option>
-                                <option value="hard">Hard</option>
-                            </select>
-                        </label>
-                        <label>
-                            Theme:
-                            <select name="theme" value={theme} onChange={handleSettingsChange}>
-                                <option value="classic">Classic</option>
-                                <option value="neon">Neon</option>
-                                <option value="dark">Dark</option>
-                            </select>
-                        </label>
-                    </div>
-                    <div>Score: {score}</div>
-                    <div>High Score: {highScore}</div>
-                    <div className="board">
-                        {Array.from({ length: 20 * 20 }, (_, index) => {
-                            const x = index % 20;
-                            const y = Math.floor(index / 20);
-                            let className = 'cell';
-                            if (snake.some(part => part.x === x && part.y === y)) className += ' snake';
-                            if (food.x === x && food.y === y) className += ' food';
-                            if (bigFood && bigFood.x === x && bigFood.y === y) className += ' big-food';
-                            return <div key={index} className={className} />;
-                        })}
-                    </div>
-                    {gameOver && (
-                        <div className="game-over">
-                            <h2>Game Over</h2>
-                            <button onClick={resetGame} className="restart-button">Restart</button>
-                        </div>
-                    )}
-                    <button onClick={togglePause} className="pause-button">
-                        {isPaused ? 'Resume' : 'Pause'}
-                    </button>
-                </>
-            )}
+                <div>
+                    <label htmlFor="theme">Theme:</label>
+                    <select id="theme" name="theme" value={theme} onChange={handleSettingsChange}>
+                        <option value="classic">Classic</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                </div>
+            </div>
+            <div className="controls-panel">
+                <button className="control-button" onClick={() => changeDirection({ key: 'ArrowUp' })}>Up</button>
+                <button className="control-button" onClick={() => changeDirection({ key: 'ArrowDown' })}>Down</button>
+                <button className="control-button" onClick={() => changeDirection({ key: 'ArrowLeft' })}>Left</button>
+                <button className="control-button" onClick={() => changeDirection({ key: 'ArrowRight' })}>Right</button>
+            </div>
         </div>
     );
 };
