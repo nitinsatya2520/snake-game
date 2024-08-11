@@ -306,8 +306,12 @@ const SnakeGame = () => {
                     </button>
                     <div className="controls-panel">
                         <button className="control-button" onClick={() => changeDirection({ key: 'ArrowUp' })}>Up</button>
-                        <button className="control-button" onClick={() => changeDirection({ key: 'ArrowDown' })}>Down</button>
+                        </div>    
+                    <div className="controls-panel">
+                        
                         <button className="control-button" onClick={() => changeDirection({ key: 'ArrowLeft' })}>Left</button>
+                        <button className="control-button" onClick={() => changeDirection({ key: 'ArrowDown' })}>Down</button>
+                        
                         <button className="control-button" onClick={() => changeDirection({ key: 'ArrowRight' })}>Right</button>
                     </div>
                 </>
